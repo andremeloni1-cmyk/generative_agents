@@ -9,15 +9,25 @@
 This repository accompanies our research paper titled "[Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442)." It contains our core simulation module for  generative agents—computational agents that simulate believable human behaviors—and their game environment. Below, we document the steps for setting up the simulation environment on your local machine and for replaying the simulation as a demo animation.
 
 ## <img src="https://joonsungpark.s3.amazonaws.com:443/static/assets/characters/profile/Isabella_Rodriguez.png" alt="Generative Isabella">   Setting Up the Environment 
-To set up your environment, you will need to generate a `utils.py` file that contains your OpenAI API key and download the necessary packages.
+To set up your environment, you will need to generate a `utils.py` file that contains your Anthropic API key and download the necessary packages.
+
+> **Note:** This fork runs on Anthropic's **Claude** models for all text generation. Embeddings are computed locally with a `sentence-transformers` model, so **no OpenAI account is required**. A ready-to-copy template lives at `reverie/backend_server/utils.py.example`.
 
 ### Step 1. Generate Utils File
 In the `reverie/backend_server` folder (where `reverie.py` is located), create a new file titled `utils.py` and copy and paste the content below into the file:
 ```
-# Copy and paste your OpenAI API Key
-openai_api_key = "<Your OpenAI API>"
+# Copy and paste your Anthropic API Key
+anthropic_api_key = "<Your Anthropic API Key>"
 # Put your name
 key_owner = "<Name>"
+
+# Claude models used for generation (override if you like).
+# claude_model is used for the higher-quality calls; claude_light_model for
+# the cheaper, more frequent calls.
+claude_model = "claude-sonnet-4-6"
+claude_light_model = "claude-haiku-4-5-20251001"
+# Local sentence-transformers model used for embeddings (no API key needed).
+embedding_model = "all-MiniLM-L6-v2"
 
 maze_assets_loc = "../../environment/frontend_server/static_dirs/assets"
 env_matrix = f"{maze_assets_loc}/the_ville/matrix"
@@ -31,7 +41,7 @@ collision_block_id = "32125"
 # Verbose 
 debug = True
 ```
-Replace `<Your OpenAI API>` with your OpenAI API key, and `<name>` with your name.
+Replace `<Your Anthropic API Key>` with your Anthropic API key, and `<name>` with your name. The API key can also be supplied via the `ANTHROPIC_API_KEY` environment variable instead of `utils.py`.
  
 ### Step 2. Install requirements.txt
 Install everything listed in the `requirements.txt` file (I strongly recommend first setting up a virtualenv as usual). A note on Python version: we tested our environment on Python 3.9.12. 

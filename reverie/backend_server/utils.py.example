@@ -1,0 +1,27 @@
+# Copy this file to `utils.py` (in the same directory) and fill in your key.
+# `utils.py` is gitignored so your secrets are never committed.
+
+# Copy and paste your Anthropic API Key (or set the ANTHROPIC_API_KEY env var).
+anthropic_api_key = "<Your Anthropic API Key>"
+# Put your name
+key_owner = "<Name>"
+
+# Claude models used for generation (override if you like).
+#   claude_model       -> higher-quality calls (formerly GPT-4)
+#   claude_light_model -> cheaper, more frequent calls (formerly GPT-3.5)
+claude_model = "claude-sonnet-4-6"
+claude_light_model = "claude-haiku-4-5-20251001"
+# Local sentence-transformers model used for embeddings (no API key needed).
+embedding_model = "all-MiniLM-L6-v2"
+
+maze_assets_loc = "../../environment/frontend_server/static_dirs/assets"
+env_matrix = f"{maze_assets_loc}/the_ville/matrix"
+env_visuals = f"{maze_assets_loc}/the_ville/visuals"
+
+fs_storage = "../../environment/frontend_server/storage"
+fs_temp_storage = "../../environment/frontend_server/temp_storage"
+
+collision_block_id = "32125"
+
+# Verbose
+debug = True
