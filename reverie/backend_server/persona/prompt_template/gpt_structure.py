@@ -77,6 +77,29 @@ def ChatGPT_single_request(prompt):
   return _claude_request(prompt, claude_light_model, max_tokens=1024)
 
 
+def _extract_json_output(response):
+  """Pull the {"output": ...} JSON out of an LLM response.
+
+  Unlike the GPT-3.5/4 models these prompts were written for, Claude often
+  wraps JSON in markdown code fences (```json ... ```) and/or adds a short
+  preamble. We strip any fence and slice from the first '{' to the last '}'
+  before parsing so the structured-output prompts keep working.
+  """
+  text = response.strip()
+  if text.startswith("```"):
+    # Drop the opening fence (and optional language tag) and closing fence.
+    text = text[3:]
+    if "\n" in text:
+      first_line, rest = text.split("\n", 1)
+      if first_line.strip() == "" or first_line.strip().isalpha():
+        text = rest
+    if text.rstrip().endswith("```"):
+      text = text.rstrip()[:-3]
+  start = text.find("{")
+  end = text.rfind("}") + 1
+  return json.loads(text[start:end])["output"]
+
+
 # ============================================================================
 # #####################[SECTION 1: CHATGPT-3 STRUCTURE] ######################
 # ============================================================================
@@ -123,6 +146,7 @@ def GPT4_safe_generate_response(prompt,
                                    verbose=False):
   prompt = 'GPT-3 Prompt:\n"""\n' + prompt + '\n"""\n'
   prompt += f"Output the response to the prompt above in json. {special_instruction}\n"
+  prompt += "Output only the raw JSON, with no markdown code fences or extra text.\n"
   prompt += "Example output json:\n"
   prompt += '{"output": "' + str(example_output) + '"}'
 
@@ -134,9 +158,7 @@ def GPT4_safe_generate_response(prompt,
 
     try:
       curr_gpt_response = GPT4_request(prompt).strip()
-      end_index = curr_gpt_response.rfind('}') + 1
-      curr_gpt_response = curr_gpt_response[:end_index]
-      curr_gpt_response = json.loads(curr_gpt_response)["output"]
+      curr_gpt_response = _extract_json_output(curr_gpt_response)
 
       if func_validate(curr_gpt_response, prompt=prompt):
         return func_clean_up(curr_gpt_response, prompt=prompt)
@@ -163,6 +185,7 @@ def ChatGPT_safe_generate_response(prompt,
   # prompt = 'GPT-3 Prompt:\n"""\n' + prompt + '\n"""\n'
   prompt = '"""\n' + prompt + '\n"""\n'
   prompt += f"Output the response to the prompt above in json. {special_instruction}\n"
+  prompt += "Output only the raw JSON, with no markdown code fences or extra text.\n"
   prompt += "Example output json:\n"
   prompt += '{"output": "' + str(example_output) + '"}'
 
@@ -174,9 +197,7 @@ def ChatGPT_safe_generate_response(prompt,
 
     try:
       curr_gpt_response = ChatGPT_request(prompt).strip()
-      end_index = curr_gpt_response.rfind('}') + 1
-      curr_gpt_response = curr_gpt_response[:end_index]
-      curr_gpt_response = json.loads(curr_gpt_response)["output"]
+      curr_gpt_response = _extract_json_output(curr_gpt_response)
 
       # print ("---ashdfaf")
       # print (curr_gpt_response)
